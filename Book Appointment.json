@@ -1,0 +1,341 @@
+{
+  "name": "Book Appointment",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "book-appointment",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "6a2017cb-9ee6-4a48-ae34-2d5ae3fb7062",
+      "name": "Webhook - Book Appointment",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        640,
+        368
+      ],
+      "webhookId": "book-appointment"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract appointment details from webhook\nconst body = $input.item.json.body;\n\nconst fullName = body.fullName;\nconst email = body.email;\nconst phone = body.phone;\nconst serviceType = body.serviceType;\nconst appointmentDate = body.appointmentDate;\nconst appointmentTime = body.appointmentTime;\nconst notes = body.notes || '';\n\n// Convert to ISO format for Google Calendar\nconst dateTimeString = `${appointmentDate} ${appointmentTime}`;\nconst startDateTime = new Date(dateTimeString);\n\n// Calculate end time (1 hour appointment)\nconst endDateTime = new Date(startDateTime);\nendDateTime.setHours(startDateTime.getHours() + 1);\n\nreturn {\n  json: {\n    fullName: fullName,\n    email: email,\n    phone: phone,\n    serviceType: serviceType,\n    appointmentDate: appointmentDate,\n    appointmentTime: appointmentTime,\n    notes: notes,\n    startDateTime: startDateTime.toISOString(),\n    endDateTime: endDateTime.toISOString(),\n    description: `Patient: ${fullName}\\nPhone: ${phone}\\nEmail: ${email}\\nService: ${serviceType}\\nNotes: ${notes}`\n  }\n};"
+      },
+      "id": "861cab93-e93a-43c3-a0b7-bfc468936a54",
+      "name": "Format Booking Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        864,
+        368
+      ]
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "atefgondal9@gmail.com",
+          "mode": "list",
+          "cachedResultName": "atefgondal9@gmail.com"
+        },
+        "start": "={{ $json.startDateTime }}",
+        "end": "={{ $json.endDateTime }}",
+        "additionalFields": {}
+      },
+      "id": "71326f03-01f3-4f9d-a47a-e0c51ce20606",
+      "name": "Google Calendar - Create Event",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1,
+      "position": [
+        1088,
+        368
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "xY3ue0AdUGf1GwNV",
+          "name": "Google Calendar account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1QJKPkxlrJa3_UxvdDMHF0Ylj1Jiz3HFyFw8KPCyoc7E",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "DentalAppointments",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1QJKPkxlrJa3_UxvdDMHF0Ylj1Jiz3HFyFw8KPCyoc7E/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date": "={{ $('Format Booking Data').item.json.appointmentDate }}",
+            "Time": "={{ $('Format Booking Data').item.json.appointmentTime }}",
+            "Patient Name": "={{ $('Format Booking Data').item.json.fullName }}",
+            "Email": "={{ $('Format Booking Data').item.json.email }}",
+            "Phone": "={{ $('Format Booking Data').item.json.phone }}",
+            "Service Type": "={{ $('Format Booking Data').item.json.serviceType }}",
+            "Notes": "={{ $('Format Booking Data').item.json.notes }}",
+            "Calendar Event ID": "={{ $json.id }}",
+            "Status": "Confirmed",
+            "Created At": "={{ $now.toISO() }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Time",
+              "displayName": "Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Patient Name",
+              "displayName": "Patient Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Service Type",
+              "displayName": "Service Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Notes",
+              "displayName": "Notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Calendar Event ID",
+              "displayName": "Calendar Event ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Created At",
+              "displayName": "Created At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Updated At",
+              "displayName": "Updated At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Cancellation Reason",
+              "displayName": "Cancellation Reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Cancelled At",
+              "displayName": "Cancelled At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "a746c652-c782-4171-9977-d749b7e79d59",
+      "name": "Google Sheets - Add Appointment",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        1312,
+        368
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "qbccsdWyLeHxz4wF",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\n  \"success\": true,\n  \"message\": \"Appointment booked successfully\",\n  \"appointmentDetails\": {\n    \"patientName\": $('Format Booking Data').item.json.fullName,\n    \"date\": $('Format Booking Data').item.json.appointmentDate,\n    \"time\": $('Format Booking Data').item.json.appointmentTime,\n    \"service\": $('Format Booking Data').item.json.serviceType,\n    \"calendarEventId\": $('Google Calendar - Create Event').item.json.id\n  }\n} }}",
+        "options": {}
+      },
+      "id": "f030c9c8-15d3-47b3-bbdb-d77aa28d49a5",
+      "name": "Respond - Booking Success",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1744,
+        368
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "c4casino9@gmail.com",
+        "toEmail": "={{ $('Format Booking Data').item.json.email }}",
+        "subject": "Appointment Confirmation - [Denteno]]",
+        "options": {}
+      },
+      "id": "3a4009f2-ddcd-4ac2-bce4-0300780cc701",
+      "name": "Email - Confirmation",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [
+        1520,
+        368
+      ],
+      "webhookId": "6b8588c6-692b-40e9-9234-91b798c3ea3e",
+      "credentials": {
+        "smtp": {
+          "id": "AVo9RGFn1kCZi12J",
+          "name": "SMTP account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook - Book Appointment": {
+      "main": [
+        [
+          {
+            "node": "Format Booking Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Booking Data": {
+      "main": [
+        [
+          {
+            "node": "Google Calendar - Create Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Calendar - Create Event": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets - Add Appointment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets - Add Appointment": {
+      "main": [
+        [
+          {
+            "node": "Email - Confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email - Confirmation": {
+      "main": [
+        [
+          {
+            "node": "Respond - Booking Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "4afdeb3b-5526-4f60-ac4f-93b3b3c5e581",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "43378e34498e69be9b760016d908d1e8661e578cdc38d64fdbe9fc524748b2c0"
+  },
+  "id": "GPyA9IK2g1Ugv4Gv",
+  "tags": []
+}

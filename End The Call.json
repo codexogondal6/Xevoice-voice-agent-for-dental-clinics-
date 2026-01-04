@@ -1,0 +1,848 @@
+{
+  "name": "End The Call",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "3a4b6e66-d5c7-4db1-89d7-7d1753f8a60f",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -432,
+        -32
+      ],
+      "id": "888c946c-1516-4dbe-99d5-e2da7e903c6d",
+      "name": "Webhook",
+      "webhookId": "3a4b6e66-d5c7-4db1-89d7-7d1753f8a60f"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "app8fhWoJ3PN4Fl1m",
+          "mode": "list",
+          "cachedResultName": "Xevoice",
+          "cachedResultUrl": "https://airtable.com/app8fhWoJ3PN4Fl1m"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblVvxptbsDnFm4hc",
+          "mode": "list",
+          "cachedResultName": "Boot Camp",
+          "cachedResultUrl": "https://airtable.com/app8fhWoJ3PN4Fl1m/tblVvxptbsDnFm4hc"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Cost": "={{ $json.body.call.call_cost.combined_cost/100 }}",
+            "Duration": "={{ $json.body.call.call_cost.total_duration_seconds }}",
+            "Call ID": "={{ $json.body.call.call_id }}",
+            "Transcript": "={{ $json.body.call.transcript }}",
+            "Ended Reason": "={{ $json.body.call.disconnection_reason }}",
+            "Phone Number": "="
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Call ID",
+              "displayName": "Call ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Transcript",
+              "displayName": "Transcript",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Ended Reason",
+              "displayName": "Ended Reason",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Cost",
+              "displayName": "Cost",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Duration",
+              "displayName": "Duration",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Phone Number",
+              "displayName": "Phone Number",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Created",
+              "displayName": "Created",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        48,
+        -32
+      ],
+      "id": "c88792c5-7bf7-457a-ba5d-3e1ef677d74b",
+      "name": "Create a record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "9Z5kida4paPFoKTO",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "af168170-bf0e-42b7-a5af-708e5c617485",
+              "leftValue": "={{ $json.body.event }}",
+              "rightValue": "call_ended",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        -176,
+        -32
+      ],
+      "id": "38585830-0d47-4c24-852a-f3c04a01566f",
+      "name": "Filter"
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "xevoice.app.n8n.cloud",
+            "user-agent": "axios/1.13.2",
+            "content-length": "9009",
+            "accept": "application/json, text/plain, */*",
+            "accept-encoding": "gzip, br",
+            "cdn-loop": "cloudflare; loops=1; subreqs=1",
+            "cf-connecting-ip": "100.20.5.228",
+            "cf-ew-via": "15",
+            "cf-ipcountry": "US",
+            "cf-ray": "9aaccebe636be5c0-PDX",
+            "cf-visitor": "{\"scheme\":\"https\"}",
+            "cf-worker": "n8n.cloud",
+            "content-type": "application/json",
+            "x-forwarded-for": "100.20.5.228, 172.68.175.54",
+            "x-forwarded-host": "xevoice.app.n8n.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "traefik-prod-users-gwc-9-7bb7d4c57c-5brtv",
+            "x-is-trusted": "yes",
+            "x-real-ip": "100.20.5.228",
+            "x-retell-signature": "v=1765202621159,d=a5ff5da27de443fbf7415cecc972304b002413c3e5b5223e837e4793c54a2a4e"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "event": "call_ended",
+            "call": {
+              "call_id": "call_2a178a71597fff907e62783ee74",
+              "call_type": "web_call",
+              "agent_id": "agent_5b984330f601645b4272d6d064",
+              "agent_version": 2,
+              "agent_name": "Xevoice-Dental Receptionist",
+              "call_status": "ended",
+              "start_timestamp": 1765202598674,
+              "end_timestamp": 1765202619575,
+              "duration_ms": 20901,
+              "transcript": "Agent: Hello, thank you for calling Sunshine Dental Care. This is Sara. How can I assist you today?\nUser: Hello?\nAgent: Hi there! How can I help you today? Are you looking to book an appointment, reschedule, or do you have a question for me?\n",
+              "transcript_object": [
+                {
+                  "role": "agent",
+                  "content": "Hello, thank you for calling Sunshine Dental Care. This is Sara. How can I assist you today?",
+                  "words": [
+                    {
+                      "word": "Hello, ",
+                      "start": 1.277,
+                      "end": 1.640636474609375
+                    },
+                    {
+                      "word": "thank ",
+                      "start": 1.640636474609375,
+                      "end": 2.004272705078125
+                    },
+                    {
+                      "word": "you ",
+                      "start": 2.004272705078125,
+                      "end": 2.3679091796875
+                    },
+                    {
+                      "word": "for ",
+                      "start": 2.3679091796875,
+                      "end": 2.73154541015625
+                    },
+                    {
+                      "word": "calling ",
+                      "start": 2.73154541015625,
+                      "end": 3.095181884765625
+                    },
+                    {
+                      "word": "Sunshine ",
+                      "start": 3.095181884765625,
+                      "end": 3.458818115234375
+                    },
+                    {
+                      "word": "Dental ",
+                      "start": 3.458818115234375,
+                      "end": 3.82245458984375
+                    },
+                    {
+                      "word": "Care. ",
+                      "start": 3.6407802734375,
+                      "end": 4.004416748046875
+                    },
+                    {
+                      "word": "This ",
+                      "start": 4.004416748046875,
+                      "end": 4.368052978515625
+                    },
+                    {
+                      "word": "is ",
+                      "start": 4.368052978515625,
+                      "end": 4.731689453125
+                    },
+                    {
+                      "word": "Sara. ",
+                      "start": 4.731689453125,
+                      "end": 5.09532568359375
+                    },
+                    {
+                      "word": "How ",
+                      "start": 5.157083251953125,
+                      "end": 5.5207197265625
+                    },
+                    {
+                      "word": "can ",
+                      "start": 5.5207197265625,
+                      "end": 5.88435595703125
+                    },
+                    {
+                      "word": "I ",
+                      "start": 5.88435595703125,
+                      "end": 6.247992431640625
+                    },
+                    {
+                      "word": "assist ",
+                      "start": 6.027822021484375,
+                      "end": 6.391458251953125
+                    },
+                    {
+                      "word": "you ",
+                      "start": 6.027822021484375,
+                      "end": 6.391458251953125
+                    },
+                    {
+                      "word": "today?",
+                      "start": 6.027822021484375,
+                      "end": 6.391458251953125
+                    }
+                  ],
+                  "metadata": {
+                    "response_id": 0
+                  }
+                },
+                {
+                  "role": "user",
+                  "content": "Hello?",
+                  "words": [
+                    {
+                      "word": "Hello?",
+                      "start": 12.64,
+                      "end": 12.96
+                    }
+                  ]
+                },
+                {
+                  "role": "agent",
+                  "content": "Hi there! How can I help you today? Are you looking to book an appointment, reschedule, or do you have a question for me?",
+                  "words": [
+                    {
+                      "word": "Hi ",
+                      "start": 14.537,
+                      "end": 14.900636474609374
+                    },
+                    {
+                      "word": "there! ",
+                      "start": 14.900636474609374,
+                      "end": 15.264272705078126
+                    },
+                    {
+                      "word": "How ",
+                      "start": 15.687583251953125,
+                      "end": 16.0512197265625
+                    },
+                    {
+                      "word": "can ",
+                      "start": 16.0512197265625,
+                      "end": 16.41485595703125
+                    },
+                    {
+                      "word": "I ",
+                      "start": 16.41485595703125,
+                      "end": 16.778492431640625
+                    },
+                    {
+                      "word": "help ",
+                      "start": 16.561697021484374,
+                      "end": 16.925333251953123
+                    },
+                    {
+                      "word": "you ",
+                      "start": 16.561697021484374,
+                      "end": 16.925333251953123
+                    },
+                    {
+                      "word": "today? ",
+                      "start": 16.561697021484374,
+                      "end": 16.925333251953123
+                    },
+                    {
+                      "word": "Are ",
+                      "start": 16.925333251953123,
+                      "end": 17.2889697265625
+                    },
+                    {
+                      "word": "you ",
+                      "start": 17.2889697265625,
+                      "end": 17.65260595703125
+                    },
+                    {
+                      "word": "looking ",
+                      "start": 17.65260595703125,
+                      "end": 18.016242431640624
+                    },
+                    {
+                      "word": "to ",
+                      "start": 18.016242431640624,
+                      "end": 18.37987890625
+                    },
+                    {
+                      "word": "book ",
+                      "start": 18.37987890625,
+                      "end": 18.74351513671875
+                    },
+                    {
+                      "word": "an ",
+                      "start": 18.74351513671875,
+                      "end": 19.107151611328124
+                    },
+                    {
+                      "word": "appointment, ",
+                      "start": 19.107151611328124,
+                      "end": 19.470787841796874
+                    },
+                    {
+                      "word": "reschedule, ",
+                      "start": 19.470787841796874,
+                      "end": 19.83442431640625
+                    },
+                    {
+                      "word": "or ",
+                      "start": 19.83442431640625,
+                      "end": 20.198060546875
+                    },
+                    {
+                      "word": "do ",
+                      "start": 20.198060546875,
+                      "end": 20.561697021484374
+                    },
+                    {
+                      "word": "you ",
+                      "start": 20.337572021484377,
+                      "end": 20.701208251953126
+                    },
+                    {
+                      "word": "have ",
+                      "start": 20.337572021484377,
+                      "end": 20.701208251953126
+                    },
+                    {
+                      "word": "a ",
+                      "start": 20.337572021484377,
+                      "end": 20.701208251953126
+                    },
+                    {
+                      "word": "question ",
+                      "start": 20.337572021484377,
+                      "end": 20.701208251953126
+                    },
+                    {
+                      "word": "for ",
+                      "start": 20.337572021484377,
+                      "end": 20.701208251953126
+                    },
+                    {
+                      "word": "me?",
+                      "start": 20.337572021484377,
+                      "end": 20.701208251953126
+                    }
+                  ],
+                  "metadata": {
+                    "response_id": 1
+                  }
+                }
+              ],
+              "transcript_with_tool_calls": [
+                {
+                  "role": "agent",
+                  "content": "Hello, thank you for calling Sunshine Dental Care. This is Sara. How can I assist you today?",
+                  "words": [
+                    {
+                      "word": "Hello, ",
+                      "start": 1.277,
+                      "end": 1.640636474609375
+                    },
+                    {
+                      "word": "thank ",
+                      "start": 1.640636474609375,
+                      "end": 2.004272705078125
+                    },
+                    {
+                      "word": "you ",
+                      "start": 2.004272705078125,
+                      "end": 2.3679091796875
+                    },
+                    {
+                      "word": "for ",
+                      "start": 2.3679091796875,
+                      "end": 2.73154541015625
+                    },
+                    {
+                      "word": "calling ",
+                      "start": 2.73154541015625,
+                      "end": 3.095181884765625
+                    },
+                    {
+                      "word": "Sunshine ",
+                      "start": 3.095181884765625,
+                      "end": 3.458818115234375
+                    },
+                    {
+                      "word": "Dental ",
+                      "start": 3.458818115234375,
+                      "end": 3.82245458984375
+                    },
+                    {
+                      "word": "Care. ",
+                      "start": 3.6407802734375,
+                      "end": 4.004416748046875
+                    },
+                    {
+                      "word": "This ",
+                      "start": 4.004416748046875,
+                      "end": 4.368052978515625
+                    },
+                    {
+                      "word": "is ",
+                      "start": 4.368052978515625,
+                      "end": 4.731689453125
+                    },
+                    {
+                      "word": "Sara. ",
+                      "start": 4.731689453125,
+                      "end": 5.09532568359375
+                    },
+                    {
+                      "word": "How ",
+                      "start": 5.157083251953125,
+                      "end": 5.5207197265625
+                    },
+                    {
+                      "word": "can ",
+                      "start": 5.5207197265625,
+                      "end": 5.88435595703125
+                    },
+                    {
+                      "word": "I ",
+                      "start": 5.88435595703125,
+                      "end": 6.247992431640625
+                    },
+                    {
+                      "word": "assist ",
+                      "start": 6.027822021484375,
+                      "end": 6.391458251953125
+                    },
+                    {
+                      "word": "you ",
+                      "start": 6.027822021484375,
+                      "end": 6.391458251953125
+                    },
+                    {
+                      "word": "today?",
+                      "start": 6.027822021484375,
+                      "end": 6.391458251953125
+                    }
+                  ],
+                  "metadata": {
+                    "response_id": 0
+                  }
+                },
+                {
+                  "role": "user",
+                  "content": "Hello?",
+                  "words": [
+                    {
+                      "word": "Hello?",
+                      "start": 12.64,
+                      "end": 12.96
+                    }
+                  ]
+                },
+                {
+                  "role": "agent",
+                  "content": "Hi there! How can I help you today? Are you looking to book an appointment, reschedule, or do you have a question for me?",
+                  "words": [
+                    {
+                      "word": "Hi ",
+                      "start": 14.537,
+                      "end": 14.900636474609374
+                    },
+                    {
+                      "word": "there! ",
+                      "start": 14.900636474609374,
+                      "end": 15.264272705078126
+                    },
+                    {
+                      "word": "How ",
+                      "start": 15.687583251953125,
+                      "end": 16.0512197265625
+                    },
+                    {
+                      "word": "can ",
+                      "start": 16.0512197265625,
+                      "end": 16.41485595703125
+                    },
+                    {
+                      "word": "I ",
+                      "start": 16.41485595703125,
+                      "end": 16.778492431640625
+                    },
+                    {
+                      "word": "help ",
+                      "start": 16.561697021484374,
+                      "end": 16.925333251953123
+                    },
+                    {
+                      "word": "you ",
+                      "start": 16.561697021484374,
+                      "end": 16.925333251953123
+                    },
+                    {
+                      "word": "today? ",
+                      "start": 16.561697021484374,
+                      "end": 16.925333251953123
+                    },
+                    {
+                      "word": "Are ",
+                      "start": 16.925333251953123,
+                      "end": 17.2889697265625
+                    },
+                    {
+                      "word": "you ",
+                      "start": 17.2889697265625,
+                      "end": 17.65260595703125
+                    },
+                    {
+                      "word": "looking ",
+                      "start": 17.65260595703125,
+                      "end": 18.016242431640624
+                    },
+                    {
+                      "word": "to ",
+                      "start": 18.016242431640624,
+                      "end": 18.37987890625
+                    },
+                    {
+                      "word": "book ",
+                      "start": 18.37987890625,
+                      "end": 18.74351513671875
+                    },
+                    {
+                      "word": "an ",
+                      "start": 18.74351513671875,
+                      "end": 19.107151611328124
+                    },
+                    {
+                      "word": "appointment, ",
+                      "start": 19.107151611328124,
+                      "end": 19.470787841796874
+                    },
+                    {
+                      "word": "reschedule, ",
+                      "start": 19.470787841796874,
+                      "end": 19.83442431640625
+                    },
+                    {
+                      "word": "or ",
+                      "start": 19.83442431640625,
+                      "end": 20.198060546875
+                    },
+                    {
+                      "word": "do ",
+                      "start": 20.198060546875,
+                      "end": 20.561697021484374
+                    },
+                    {
+                      "word": "you ",
+                      "start": 20.337572021484377,
+                      "end": 20.701208251953126
+                    },
+                    {
+                      "word": "have ",
+                      "start": 20.337572021484377,
+                      "end": 20.701208251953126
+                    },
+                    {
+                      "word": "a ",
+                      "start": 20.337572021484377,
+                      "end": 20.701208251953126
+                    },
+                    {
+                      "word": "question ",
+                      "start": 20.337572021484377,
+                      "end": 20.701208251953126
+                    },
+                    {
+                      "word": "for ",
+                      "start": 20.337572021484377,
+                      "end": 20.701208251953126
+                    },
+                    {
+                      "word": "me?",
+                      "start": 20.337572021484377,
+                      "end": 20.701208251953126
+                    }
+                  ],
+                  "metadata": {
+                    "response_id": 1
+                  }
+                }
+              ],
+              "knowledge_base_retrieved_contents_url": "https://dxc03zgurdly9.cloudfront.net/75db6372fa76b870524b47c5d0c1077103230beb0e3467d982e00b882548a389/knowledge_base_retrieved_contents.json",
+              "recording_url": "https://dxc03zgurdly9.cloudfront.net/75db6372fa76b870524b47c5d0c1077103230beb0e3467d982e00b882548a389/recording.wav",
+              "recording_multi_channel_url": "https://dxc03zgurdly9.cloudfront.net/75db6372fa76b870524b47c5d0c1077103230beb0e3467d982e00b882548a389/recording_multichannel.wav",
+              "public_log_url": "https://dxc03zgurdly9.cloudfront.net/75db6372fa76b870524b47c5d0c1077103230beb0e3467d982e00b882548a389/public.log",
+              "disconnection_reason": "user_hangup",
+              "latency": {
+                "llm": {
+                  "p50": 336,
+                  "p90": 603.9999999999999,
+                  "p95": 637.5,
+                  "p99": 664.3,
+                  "min": 1,
+                  "max": 671,
+                  "num": 2,
+                  "values": [
+                    1,
+                    671
+                  ]
+                },
+                "e2e": {
+                  "p50": 1577,
+                  "p90": 1577,
+                  "p95": 1577,
+                  "p99": 1577,
+                  "min": 1577,
+                  "max": 1577,
+                  "num": 1,
+                  "values": [
+                    1577
+                  ]
+                },
+                "tts": {
+                  "p50": 607,
+                  "p90": 646.2,
+                  "p95": 651.1,
+                  "p99": 655.02,
+                  "min": 558,
+                  "max": 656,
+                  "num": 2,
+                  "values": [
+                    656,
+                    558
+                  ]
+                },
+                "knowledge_base": {
+                  "p50": 134.5,
+                  "p90": 154.1,
+                  "p95": 156.55,
+                  "p99": 158.51,
+                  "min": 110,
+                  "max": 159,
+                  "num": 2,
+                  "values": [
+                    159,
+                    110
+                  ]
+                },
+                "asr": {
+                  "p50": 29.99974999999995,
+                  "p90": 37.999949999999984,
+                  "p95": 38.99997499999999,
+                  "p99": 39.799994999999996,
+                  "min": 19.999499999999898,
+                  "max": 40,
+                  "num": 2,
+                  "values": [
+                    40,
+                    19.999499999999898
+                  ]
+                }
+              },
+              "call_cost": {
+                "product_costs": [
+                  {
+                    "product": "openai_tts",
+                    "unit_price": 0.1333333,
+                    "cost": 2.8
+                  },
+                  {
+                    "product": "gemini_2_5_flash",
+                    "unit_price": 0.0583333,
+                    "cost": 1.225
+                  },
+                  {
+                    "product": "knowledge_base_usage",
+                    "unit_price": 0.0083333,
+                    "cost": 0.175
+                  },
+                  {
+                    "product": "gpt_4o_mini_text_testing",
+                    "unit_price": 0.2,
+                    "cost": 0.2
+                  }
+                ],
+                "total_duration_unit_price": 0.2,
+                "total_duration_seconds": 21,
+                "combined_cost": 4.4
+              },
+              "data_storage_setting": "everything",
+              "opt_in_signed_url": false,
+              "llm_token_usage": {
+                "values": [
+                  888
+                ],
+                "average": 888,
+                "num_requests": 1
+              },
+              "tool_calls": [],
+              "access_token": "eyJhbGciOiJIUzI1NiJ9.eyJ2aWRlbyI6eyJyb29tSm9pbiI6dHJ1ZSwicm9vbSI6IndlYl9jYWxsXzJhMTc4YTcxNTk3ZmZmOTA3ZTYyNzgzZWU3NCJ9LCJpc3MiOiJBUEl3UkNGdVBCYXdtMmgiLCJleHAiOjE3NjUyMDMxODUsIm5iZiI6MCwic3ViIjoiY2xpZW50In0.VH9kYgLYlRxhTAbgd9k-KWwhfFNNNgoArhr8ELe61aU"
+            }
+          },
+          "webhookUrl": "https://xevoice.app.n8n.cloud/webhook/3a4b6e66-d5c7-4db1-89d7-7d1753f8a60f",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Create a record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "bcb6aca5-cf0e-4f62-87a2-4f7650ef5533",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "43378e34498e69be9b760016d908d1e8661e578cdc38d64fdbe9fc524748b2c0"
+  },
+  "id": "xBJsYTPA0bxquLhZ",
+  "tags": []
+}

@@ -1,0 +1,675 @@
+{
+  "name": "Update Appointment",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "update-appointment",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "1d5d7ac0-43e5-4216-923e-0107da6ce085",
+      "name": "Webhook - Update Appointment",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -880,
+        96
+      ],
+      "webhookId": "update-appointment"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract update details from webhook\nconst body = $input.item.json.body;\n\nconst phone = body.phone;\nconst fullName = body.fullName;\nconst action = body.action; // 'reschedule' or 'cancel'\nconst newDate = body.newDate || null;\nconst newTime = body.newTime || null;\nconst reason = body.reason || '';\n\nreturn {\n  json: {\n    phone: phone,\n    fullName: fullName,\n    action: action,\n    newDate: newDate,\n    newTime: newTime,\n    reason: reason\n  }\n};"
+      },
+      "id": "73d20aff-de5b-439c-8a6a-116940e478c7",
+      "name": "Format Update Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -656,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1QJKPkxlrJa3_UxvdDMHF0Ylj1Jiz3HFyFw8KPCyoc7E",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "DentalAppointments",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1QJKPkxlrJa3_UxvdDMHF0Ylj1Jiz3HFyFw8KPCyoc7E/edit#gid=0"
+        },
+        "options": {}
+      },
+      "id": "746b17e7-6365-4b74-8e6a-4b73b0939987",
+      "name": "Google Sheets - Find Appointment",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        -432,
+        96
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "qbccsdWyLeHxz4wF",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $('Format Update Data').item.json.action }}",
+              "operation": "equals",
+              "value2": "cancel"
+            }
+          ]
+        }
+      },
+      "id": "39949a18-1b90-4bd7-809a-2c66abb3d311",
+      "name": "If Cancel or Reschedule",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -208,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "calendar": {
+          "__rl": true,
+          "value": "atefgondal9@gmail.com",
+          "mode": "list",
+          "cachedResultName": "atefgondal9@gmail.com"
+        },
+        "eventId": "={{ $('Google Sheets - Find Appointment').item.json['Calendar Event ID'] }}",
+        "options": {}
+      },
+      "id": "ef0fcd08-990b-4dea-9ff2-e3718724bea6",
+      "name": "Google Calendar - Cancel Event",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "bz5BN2lgkHtw1sYw",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1QJKPkxlrJa3_UxvdDMHF0Ylj1Jiz3HFyFw8KPCyoc7E",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "DentalAppointments",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1QJKPkxlrJa3_UxvdDMHF0Ylj1Jiz3HFyFw8KPCyoc7E/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Status": "Cancelled",
+            "Cancellation Reason": "={{ $('Format Update Data').item.json.reason }}",
+            "Cancelled At": "={{ $now.toISO() }}",
+            "row_number": 0
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Time",
+              "displayName": "Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Patient Name",
+              "displayName": "Patient Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Service Type",
+              "displayName": "Service Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Notes",
+              "displayName": "Notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Calendar Event ID",
+              "displayName": "Calendar Event ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Created At",
+              "displayName": "Created At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Updated At",
+              "displayName": "Updated At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Cancellation Reason",
+              "displayName": "Cancellation Reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Cancelled At",
+              "displayName": "Cancelled At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "23bcac57-565f-4955-ba85-6053f0341bb6",
+      "name": "Google Sheets - Mark Cancelled",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        224,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "qbccsdWyLeHxz4wF",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Format new date/time for rescheduling\nconst newDate = $('Format Update Data').item.json.newDate;\nconst newTime = $('Format Update Data').item.json.newTime;\n\nconst dateTimeString = `${newDate} ${newTime}`;\nconst startDateTime = new Date(dateTimeString);\n\nconst endDateTime = new Date(startDateTime);\nendDateTime.setHours(startDateTime.getHours() + 1);\n\nreturn {\n  json: {\n    newDate: newDate,\n    newTime: newTime,\n    startDateTime: startDateTime.toISOString(),\n    endDateTime: endDateTime.toISOString()\n  }\n};"
+      },
+      "id": "6d55eb73-df26-46a2-a6f4-ef50181d4758",
+      "name": "Format Reschedule DateTime",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "calendar": {
+          "__rl": true,
+          "value": "atefgondal9@gmail.com",
+          "mode": "list",
+          "cachedResultName": "atefgondal9@gmail.com"
+        },
+        "eventId": "={{ $('Google Sheets - Find Appointment').item.json['Calendar Event ID'] }}",
+        "updateFields": {
+          "end": "={{ $json.endDateTime }}",
+          "start": "={{ $json.startDateTime }}"
+        }
+      },
+      "id": "f1f47468-99e1-4805-8325-ccbe32c4bb47",
+      "name": "Google Calendar - Update Event",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1,
+      "position": [
+        224,
+        192
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "bz5BN2lgkHtw1sYw",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1QJKPkxlrJa3_UxvdDMHF0Ylj1Jiz3HFyFw8KPCyoc7E",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "DentalAppointments",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1QJKPkxlrJa3_UxvdDMHF0Ylj1Jiz3HFyFw8KPCyoc7E/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date": "={{ $('Format Reschedule DateTime').item.json.newDate }}",
+            "Time": "={{ $('Format Reschedule DateTime').item.json.newTime }}",
+            "Updated At": "={{ $now.toISO() }}",
+            "row_number": 0
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Time",
+              "displayName": "Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Patient Name",
+              "displayName": "Patient Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Service Type",
+              "displayName": "Service Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Notes",
+              "displayName": "Notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Calendar Event ID",
+              "displayName": "Calendar Event ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Created At",
+              "displayName": "Created At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Updated At",
+              "displayName": "Updated At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Cancellation Reason",
+              "displayName": "Cancellation Reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Cancelled At",
+              "displayName": "Cancelled At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "8aa02e1b-cb60-4dec-9e99-703ea8c9b1e8",
+      "name": "Google Sheets - Update DateTime",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        448,
+        192
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "qbccsdWyLeHxz4wF",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\n  \"success\": true,\n  \"message\": \"Appointment cancelled successfully\",\n  \"details\": {\n    \"patientName\": $('Google Sheets - Find Appointment').item.json['Patient Name'],\n    \"originalDate\": $('Google Sheets - Find Appointment').item.json.Date,\n    \"originalTime\": $('Google Sheets - Find Appointment').item.json.Time\n  }\n} }}",
+        "options": {}
+      },
+      "id": "e446dba4-ce32-4628-a40c-19d6b5b0c706",
+      "name": "Respond - Cancel Success",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        448,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\n  \"success\": true,\n  \"message\": \"Appointment rescheduled successfully\",\n  \"details\": {\n    \"patientName\": $('Google Sheets - Find Appointment').item.json['Patient Name'],\n    \"oldDate\": $('Google Sheets - Find Appointment').item.json.Date,\n    \"oldTime\": $('Google Sheets - Find Appointment').item.json.Time,\n    \"newDate\": $('Format Reschedule DateTime').item.json.newDate,\n    \"newTime\": $('Format Reschedule DateTime').item.json.newTime\n  }\n} }}",
+        "options": {}
+      },
+      "id": "e90fc333-7596-4ea5-9e86-c10844ea774b",
+      "name": "Respond - Reschedule Success",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        672,
+        192
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook - Update Appointment": {
+      "main": [
+        [
+          {
+            "node": "Format Update Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Update Data": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets - Find Appointment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets - Find Appointment": {
+      "main": [
+        [
+          {
+            "node": "If Cancel or Reschedule",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Cancel or Reschedule": {
+      "main": [
+        [
+          {
+            "node": "Google Calendar - Cancel Event",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Format Reschedule DateTime",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Calendar - Cancel Event": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets - Mark Cancelled",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets - Mark Cancelled": {
+      "main": [
+        [
+          {
+            "node": "Respond - Cancel Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Reschedule DateTime": {
+      "main": [
+        [
+          {
+            "node": "Google Calendar - Update Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Calendar - Update Event": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets - Update DateTime",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets - Update DateTime": {
+      "main": [
+        [
+          {
+            "node": "Respond - Reschedule Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "3ab00053-c600-4b7c-9d6f-68179b31bb3d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "43378e34498e69be9b760016d908d1e8661e578cdc38d64fdbe9fc524748b2c0"
+  },
+  "id": "ZDtxtejK6KlbdMLf",
+  "tags": []
+}

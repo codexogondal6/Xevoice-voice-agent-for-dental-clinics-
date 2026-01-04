@@ -1,0 +1,148 @@
+{
+  "name": "Check Availability",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "check-availability",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "336049c6-f38c-4b13-889f-7a506e846978",
+      "name": "Webhook - Check Availability",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "check-availability"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract date and time from webhook\nconst requestedDate = $input.item.json.body.requestedDate;\nconst requestedTime = $input.item.json.body.requestedTime;\nconst serviceType = $input.item.json.body.serviceType;\n\n// Convert to ISO format for Google Calendar\nconst dateTimeString = `${requestedDate} ${requestedTime}`;\nconst startDateTime = new Date(dateTimeString);\n\n// Calculate end time (appointments are 1 hour by default)\nconst endDateTime = new Date(startDateTime);\nendDateTime.setHours(startDateTime.getHours() + 1);\n\nreturn {\n  json: {\n    startDateTime: startDateTime.toISOString(),\n    endDateTime: endDateTime.toISOString(),\n    requestedDate: requestedDate,\n    requestedTime: requestedTime,\n    serviceType: serviceType\n  }\n};"
+      },
+      "id": "404d9e03-666b-4fd6-bdca-c665cd1d00c9",
+      "name": "Format Date/Time for Check",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "atefgondal9@gmail.com",
+          "mode": "list",
+          "cachedResultName": "atefgondal9@gmail.com"
+        },
+        "start": "={{ $json.startDateTime }}",
+        "end": "={{ $json.endDateTime }}",
+        "additionalFields": {}
+      },
+      "id": "19851721-b4cb-4228-be0d-b006f6378bee",
+      "name": "Google Calendar - Check Events",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1,
+      "position": [
+        448,
+        0
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "sOG5tcuEB4Arrlru",
+          "name": "Google Calendar account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Check if any events exist in the requested time slot\nconst events = $input.all();\n\nif (events.length === 0) {\n  // No events found - slot is available\n  return {\n    json: {\n      available: true,\n      message: \"Time slot is available\",\n      requestedDate: $('Format Date/Time for Check').item.json.requestedDate,\n      requestedTime: $('Format Date/Time for Check').item.json.requestedTime\n    }\n  };\n} else {\n  // Events exist - slot is taken\n  return {\n    json: {\n      available: false,\n      message: \"Time slot is already booked\",\n      requestedDate: $('Format Date/Time for Check').item.json.requestedDate,\n      requestedTime: $('Format Date/Time for Check').item.json.requestedTime,\n      conflictingAppointments: events.length\n    }\n  };\n}"
+      },
+      "id": "2353b6df-44bf-48b2-85cc-227ac7ce0435",
+      "name": "Check Availability Logic",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "2d07f43a-bf15-49c4-a070-9318ff0d22a7",
+      "name": "Respond - Availability",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        880,
+        0
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook - Check Availability": {
+      "main": [
+        [
+          {
+            "node": "Format Date/Time for Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Date/Time for Check": {
+      "main": [
+        [
+          {
+            "node": "Google Calendar - Check Events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Calendar - Check Events": {
+      "main": [
+        [
+          {
+            "node": "Check Availability Logic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Availability Logic": {
+      "main": [
+        [
+          {
+            "node": "Respond - Availability",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ba1cb3c4-cf31-4e1d-8242-3792bc5660d9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "43378e34498e69be9b760016d908d1e8661e578cdc38d64fdbe9fc524748b2c0"
+  },
+  "id": "9rVLNeIU9zmQnm2u",
+  "tags": []
+}
